@@ -1,0 +1,312 @@
+2023-02-04 13:51:21,511 - mmcls - INFO - Environment info:
+------------------------------------------------------------
+sys.platform: linux
+Python: 3.7.12 | packaged by conda-forge | (default, Oct 26 2021, 06:08:21) [GCC 9.4.0]
+CUDA available: True
+GPU 0: GeForce RTX 2080 Ti
+CUDA_HOME: /usr/local/cuda
+NVCC: Cuda compilation tools, release 10.0, V10.0.13
+GCC: gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0
+PyTorch: 1.7.0+cu101
+PyTorch compiling details: PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - Intel(R) Math Kernel Library Version 2020.0.0 Product Build 20191122 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v1.6.0 (Git Hash 5ef631a030a6f73131c77892041042805a06064f)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 10.1
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75
+  - CuDNN 7.6.3
+  - Magma 2.5.2
+  - Build settings: BLAS=MKL, BUILD_TYPE=Release, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DUSE_VULKAN_WRAPPER -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, USE_CUDA=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, 
+
+TorchVision: 0.8.1+cu101
+OpenCV: 4.7.0
+MMCV: 1.7.1
+MMCV Compiler: GCC 7.3
+MMCV CUDA Compiler: 10.1
+MMClassification: 0.25.0+3d4f80d
+------------------------------------------------------------
+
+2023-02-04 13:51:21,511 - mmcls - INFO - Distributed training: False
+2023-02-04 13:51:21,766 - mmcls - INFO - Config:
+model = dict(
+    type='ImageClassifier',
+    backbone=dict(
+        type='ResNet',
+        depth=18,
+        num_stages=4,
+        out_indices=(3, ),
+        style='pytorch'),
+    neck=dict(type='GlobalAveragePooling'),
+    head=dict(
+        type='LinearClsHead',
+        num_classes=5,
+        in_channels=512,
+        loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
+        topk=(1, )))
+dataset_type = 'ImageNet'
+img_norm_cfg = dict(
+    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+train_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='RandomResizedCrop', size=224),
+    dict(type='RandomFlip', flip_prob=0.5, direction='horizontal'),
+    dict(
+        type='Normalize',
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_rgb=True),
+    dict(type='ImageToTensor', keys=['img']),
+    dict(type='ToTensor', keys=['gt_label']),
+    dict(type='Collect', keys=['img', 'gt_label'])
+]
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='Resize', size=(256, -1)),
+    dict(type='CenterCrop', crop_size=224),
+    dict(
+        type='Normalize',
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_rgb=True),
+    dict(type='ImageToTensor', keys=['img']),
+    dict(type='Collect', keys=['img'])
+]
+data = dict(
+    samples_per_gpu=32,
+    workers_per_gpu=2,
+    train=dict(
+        type='ImageNet',
+        data_prefix='/root/mmclassification/data/data_split/train',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(type='RandomResizedCrop', size=224),
+            dict(type='RandomFlip', flip_prob=0.5, direction='horizontal'),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='ToTensor', keys=['gt_label']),
+            dict(type='Collect', keys=['img', 'gt_label'])
+        ],
+        ann_file='/root/mmclassification/data/data_split/train.txt',
+        classes='/root/mmclassification/data/data_split/classes.txt'),
+    val=dict(
+        type='ImageNet',
+        data_prefix='/root/mmclassification/data/data_split/val',
+        ann_file='/root/mmclassification/data/data_split/val.txt',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(type='Resize', size=(256, -1)),
+            dict(type='CenterCrop', crop_size=224),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='Collect', keys=['img'])
+        ],
+        classes='/root/mmclassification/data/data_split/classes.txt'),
+    test=dict(
+        type='ImageNet',
+        data_prefix='data/imagenet/val',
+        ann_file='data/imagenet/meta/val.txt',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(type='Resize', size=(256, -1)),
+            dict(type='CenterCrop', crop_size=224),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='Collect', keys=['img'])
+        ]))
+evaluation = dict(
+    interval=1, metric='accuracy', metric_options=dict(topk=(1, )))
+optimizer = dict(type='SGD', lr=0.001, momentum=0.9, weight_decay=0.0001)
+optimizer_config = dict(grad_clip=None)
+lr_config = dict(policy='step', step=[1])
+runner = dict(type='EpochBasedRunner', max_epochs=100)
+checkpoint_config = dict(interval=10)
+log_config = dict(interval=100, hooks=[dict(type='TextLoggerHook')])
+dist_params = dict(backend='nccl')
+log_level = 'INFO'
+load_from = '/root/mmclassification/checkpoints/resnet18_batch256_imagenet_20200708-34ab8f90.pth'
+resume_from = None
+workflow = [('train', 1)]
+work_dir = './work_dirs/resnet18_b16_flower'
+gpu_ids = [0]
+
+2023-02-04 13:51:21,767 - mmcls - INFO - Set random seed to 770024398, deterministic: False
+2023-02-04 13:51:27,045 - mmcls - INFO - load checkpoint from local path: /root/mmclassification/checkpoints/resnet18_batch256_imagenet_20200708-34ab8f90.pth
+2023-02-04 13:51:27,099 - mmcls - WARNING - The model and loaded state dict do not match exactly
+
+size mismatch for head.fc.weight: copying a param with shape torch.Size([1000, 512]) from checkpoint, the shape in current model is torch.Size([5, 512]).
+size mismatch for head.fc.bias: copying a param with shape torch.Size([1000]) from checkpoint, the shape in current model is torch.Size([5]).
+2023-02-04 13:51:27,099 - mmcls - INFO - Start running, host: root@zhangcji, work_dir: /root/mmclassification/work_dirs/resnet18_b16_flower
+2023-02-04 13:51:27,100 - mmcls - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) CheckpointHook                     
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_epoch:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_iter:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+ -------------------- 
+after_train_iter:
+(ABOVE_NORMAL) OptimizerHook                      
+(NORMAL      ) CheckpointHook                     
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_train_epoch:
+(NORMAL      ) CheckpointHook                     
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_epoch:
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_epoch:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_run:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+2023-02-04 13:51:27,100 - mmcls - INFO - workflow: [('train', 1)], max: 100 epochs
+2023-02-04 13:51:27,100 - mmcls - INFO - Checkpoints will be saved to /root/mmclassification/work_dirs/resnet18_b16_flower by HardDiskBackend.
+2023-02-04 13:51:36,275 - mmcls - INFO - Epoch(val) [1][18]	accuracy_top-1: 92.8322
+2023-02-04 13:51:45,068 - mmcls - INFO - Epoch(val) [2][18]	accuracy_top-1: 92.3077
+2023-02-04 13:51:53,765 - mmcls - INFO - Epoch(val) [3][18]	accuracy_top-1: 93.0070
+2023-02-04 13:52:02,560 - mmcls - INFO - Epoch(val) [4][18]	accuracy_top-1: 93.3566
+2023-02-04 13:52:11,442 - mmcls - INFO - Epoch(val) [5][18]	accuracy_top-1: 93.3566
+2023-02-04 13:52:20,294 - mmcls - INFO - Epoch(val) [6][18]	accuracy_top-1: 94.9301
+2023-02-04 13:52:29,124 - mmcls - INFO - Epoch(val) [7][18]	accuracy_top-1: 94.0559
+2023-02-04 13:52:38,035 - mmcls - INFO - Epoch(val) [8][18]	accuracy_top-1: 93.7063
+2023-02-04 13:52:46,858 - mmcls - INFO - Epoch(val) [9][18]	accuracy_top-1: 94.7552
+2023-02-04 13:52:54,162 - mmcls - INFO - Saving checkpoint at 10 epochs
+2023-02-04 13:52:55,930 - mmcls - INFO - Epoch(val) [10][18]	accuracy_top-1: 94.4056
+2023-02-04 13:53:04,756 - mmcls - INFO - Epoch(val) [11][18]	accuracy_top-1: 94.7552
+2023-02-04 13:53:13,614 - mmcls - INFO - Epoch(val) [12][18]	accuracy_top-1: 93.8811
+2023-02-04 13:53:22,577 - mmcls - INFO - Epoch(val) [13][18]	accuracy_top-1: 94.0559
+2023-02-04 13:53:31,378 - mmcls - INFO - Epoch(val) [14][18]	accuracy_top-1: 94.9301
+2023-02-04 13:53:40,266 - mmcls - INFO - Epoch(val) [15][18]	accuracy_top-1: 94.7552
+2023-02-04 13:53:49,094 - mmcls - INFO - Epoch(val) [16][18]	accuracy_top-1: 94.4056
+2023-02-04 13:53:57,963 - mmcls - INFO - Epoch(val) [17][18]	accuracy_top-1: 94.9301
+2023-02-04 13:54:06,778 - mmcls - INFO - Epoch(val) [18][18]	accuracy_top-1: 94.2308
+2023-02-04 13:54:15,818 - mmcls - INFO - Epoch(val) [19][18]	accuracy_top-1: 94.4056
+2023-02-04 13:54:23,384 - mmcls - INFO - Saving checkpoint at 20 epochs
+2023-02-04 13:54:25,207 - mmcls - INFO - Epoch(val) [20][18]	accuracy_top-1: 94.9301
+2023-02-04 13:54:34,110 - mmcls - INFO - Epoch(val) [21][18]	accuracy_top-1: 94.9301
+2023-02-04 13:54:43,123 - mmcls - INFO - Epoch(val) [22][18]	accuracy_top-1: 94.9301
+2023-02-04 13:54:52,281 - mmcls - INFO - Epoch(val) [23][18]	accuracy_top-1: 94.9301
+2023-02-04 13:55:01,112 - mmcls - INFO - Epoch(val) [24][18]	accuracy_top-1: 94.9301
+2023-02-04 13:55:09,946 - mmcls - INFO - Epoch(val) [25][18]	accuracy_top-1: 95.8042
+2023-02-04 13:55:19,003 - mmcls - INFO - Epoch(val) [26][18]	accuracy_top-1: 95.4545
+2023-02-04 13:55:28,008 - mmcls - INFO - Epoch(val) [27][18]	accuracy_top-1: 94.5804
+2023-02-04 13:55:37,102 - mmcls - INFO - Epoch(val) [28][18]	accuracy_top-1: 94.9301
+2023-02-04 13:55:46,144 - mmcls - INFO - Epoch(val) [29][18]	accuracy_top-1: 95.8042
+2023-02-04 13:55:53,559 - mmcls - INFO - Saving checkpoint at 30 epochs
+2023-02-04 13:55:55,487 - mmcls - INFO - Epoch(val) [30][18]	accuracy_top-1: 94.7552
+2023-02-04 13:56:04,618 - mmcls - INFO - Epoch(val) [31][18]	accuracy_top-1: 94.9301
+2023-02-04 13:56:13,535 - mmcls - INFO - Epoch(val) [32][18]	accuracy_top-1: 95.4545
+2023-02-04 13:56:22,478 - mmcls - INFO - Epoch(val) [33][18]	accuracy_top-1: 95.9790
+2023-02-04 13:56:31,512 - mmcls - INFO - Epoch(val) [34][18]	accuracy_top-1: 95.2797
+2023-02-04 13:56:40,472 - mmcls - INFO - Epoch(val) [35][18]	accuracy_top-1: 95.1049
+2023-02-04 13:56:49,383 - mmcls - INFO - Epoch(val) [36][18]	accuracy_top-1: 96.3287
+2023-02-04 13:56:58,189 - mmcls - INFO - Epoch(val) [37][18]	accuracy_top-1: 95.2797
+2023-02-04 13:57:07,242 - mmcls - INFO - Epoch(val) [38][18]	accuracy_top-1: 95.8042
+2023-02-04 13:57:16,168 - mmcls - INFO - Epoch(val) [39][18]	accuracy_top-1: 95.6294
+2023-02-04 13:57:23,593 - mmcls - INFO - Saving checkpoint at 40 epochs
+2023-02-04 13:57:25,386 - mmcls - INFO - Epoch(val) [40][18]	accuracy_top-1: 95.6294
+2023-02-04 13:57:34,468 - mmcls - INFO - Epoch(val) [41][18]	accuracy_top-1: 95.9790
+2023-02-04 13:57:43,380 - mmcls - INFO - Epoch(val) [42][18]	accuracy_top-1: 95.9790
+2023-02-04 13:57:52,386 - mmcls - INFO - Epoch(val) [43][18]	accuracy_top-1: 96.3287
+2023-02-04 13:58:01,236 - mmcls - INFO - Epoch(val) [44][18]	accuracy_top-1: 95.6294
+2023-02-04 13:58:10,255 - mmcls - INFO - Epoch(val) [45][18]	accuracy_top-1: 96.1538
+2023-02-04 13:58:19,118 - mmcls - INFO - Epoch(val) [46][18]	accuracy_top-1: 96.1538
+2023-02-04 13:58:28,107 - mmcls - INFO - Epoch(val) [47][18]	accuracy_top-1: 96.3287
+2023-02-04 13:58:37,099 - mmcls - INFO - Epoch(val) [48][18]	accuracy_top-1: 96.5035
+2023-02-04 13:58:46,117 - mmcls - INFO - Epoch(val) [49][18]	accuracy_top-1: 96.6783
+2023-02-04 13:58:53,703 - mmcls - INFO - Saving checkpoint at 50 epochs
+2023-02-04 13:58:55,597 - mmcls - INFO - Epoch(val) [50][18]	accuracy_top-1: 96.1538
+2023-02-04 13:59:04,594 - mmcls - INFO - Epoch(val) [51][18]	accuracy_top-1: 95.6294
+2023-02-04 13:59:13,499 - mmcls - INFO - Epoch(val) [52][18]	accuracy_top-1: 96.5035
+2023-02-04 13:59:22,528 - mmcls - INFO - Epoch(val) [53][18]	accuracy_top-1: 96.5035
+2023-02-04 13:59:31,595 - mmcls - INFO - Epoch(val) [54][18]	accuracy_top-1: 96.3287
+2023-02-04 13:59:40,562 - mmcls - INFO - Epoch(val) [55][18]	accuracy_top-1: 97.0280
+2023-02-04 13:59:49,645 - mmcls - INFO - Epoch(val) [56][18]	accuracy_top-1: 95.9790
+2023-02-04 13:59:58,575 - mmcls - INFO - Epoch(val) [57][18]	accuracy_top-1: 96.3287
+2023-02-04 14:00:07,705 - mmcls - INFO - Epoch(val) [58][18]	accuracy_top-1: 95.8042
+2023-02-04 14:00:16,968 - mmcls - INFO - Epoch(val) [59][18]	accuracy_top-1: 96.6783
+2023-02-04 14:00:24,584 - mmcls - INFO - Saving checkpoint at 60 epochs
+2023-02-04 14:00:26,465 - mmcls - INFO - Epoch(val) [60][18]	accuracy_top-1: 96.5035
+2023-02-04 14:00:35,461 - mmcls - INFO - Epoch(val) [61][18]	accuracy_top-1: 96.1538
+2023-02-04 14:00:44,619 - mmcls - INFO - Epoch(val) [62][18]	accuracy_top-1: 96.3287
+2023-02-04 14:00:53,635 - mmcls - INFO - Epoch(val) [63][18]	accuracy_top-1: 96.6783
+2023-02-04 14:01:02,927 - mmcls - INFO - Epoch(val) [64][18]	accuracy_top-1: 96.1538
+2023-02-04 14:01:12,019 - mmcls - INFO - Epoch(val) [65][18]	accuracy_top-1: 96.5035
+2023-02-04 14:01:21,002 - mmcls - INFO - Epoch(val) [66][18]	accuracy_top-1: 96.5035
+2023-02-04 14:01:30,334 - mmcls - INFO - Epoch(val) [67][18]	accuracy_top-1: 97.0280
+2023-02-04 14:01:39,404 - mmcls - INFO - Epoch(val) [68][18]	accuracy_top-1: 96.5035
+2023-02-04 14:01:48,510 - mmcls - INFO - Epoch(val) [69][18]	accuracy_top-1: 97.0280
+2023-02-04 14:01:55,929 - mmcls - INFO - Saving checkpoint at 70 epochs
+2023-02-04 14:01:57,795 - mmcls - INFO - Epoch(val) [70][18]	accuracy_top-1: 96.1538
+2023-02-04 14:02:06,962 - mmcls - INFO - Epoch(val) [71][18]	accuracy_top-1: 96.3287
+2023-02-04 14:02:15,924 - mmcls - INFO - Epoch(val) [72][18]	accuracy_top-1: 96.8531
+2023-02-04 14:02:24,864 - mmcls - INFO - Epoch(val) [73][18]	accuracy_top-1: 95.8042
+2023-02-04 14:02:33,778 - mmcls - INFO - Epoch(val) [74][18]	accuracy_top-1: 96.6783
+2023-02-04 14:02:42,826 - mmcls - INFO - Epoch(val) [75][18]	accuracy_top-1: 97.0280
+2023-02-04 14:02:51,886 - mmcls - INFO - Epoch(val) [76][18]	accuracy_top-1: 97.0280
+2023-02-04 14:03:00,801 - mmcls - INFO - Epoch(val) [77][18]	accuracy_top-1: 96.6783
+2023-02-04 14:03:09,866 - mmcls - INFO - Epoch(val) [78][18]	accuracy_top-1: 95.8042
+2023-02-04 14:03:18,812 - mmcls - INFO - Epoch(val) [79][18]	accuracy_top-1: 96.3287
+2023-02-04 14:03:26,317 - mmcls - INFO - Saving checkpoint at 80 epochs
+2023-02-04 14:03:28,205 - mmcls - INFO - Epoch(val) [80][18]	accuracy_top-1: 96.6783
+2023-02-04 14:03:37,288 - mmcls - INFO - Epoch(val) [81][18]	accuracy_top-1: 96.5035
+2023-02-04 14:03:46,171 - mmcls - INFO - Epoch(val) [82][18]	accuracy_top-1: 96.5035
+2023-02-04 14:03:55,121 - mmcls - INFO - Epoch(val) [83][18]	accuracy_top-1: 96.6783
+2023-02-04 14:04:04,153 - mmcls - INFO - Epoch(val) [84][18]	accuracy_top-1: 95.9790
+2023-02-04 14:04:13,203 - mmcls - INFO - Epoch(val) [85][18]	accuracy_top-1: 96.6783
+2023-02-04 14:04:22,232 - mmcls - INFO - Epoch(val) [86][18]	accuracy_top-1: 97.0280
+2023-02-04 14:04:31,178 - mmcls - INFO - Epoch(val) [87][18]	accuracy_top-1: 96.3287
+2023-02-04 14:04:40,178 - mmcls - INFO - Epoch(val) [88][18]	accuracy_top-1: 96.8531
+2023-02-04 14:04:49,226 - mmcls - INFO - Epoch(val) [89][18]	accuracy_top-1: 96.5035
+2023-02-04 14:04:56,765 - mmcls - INFO - Saving checkpoint at 90 epochs
+2023-02-04 14:04:58,532 - mmcls - INFO - Epoch(val) [90][18]	accuracy_top-1: 96.8531
+2023-02-04 14:05:07,619 - mmcls - INFO - Epoch(val) [91][18]	accuracy_top-1: 95.9790
+2023-02-04 14:05:16,703 - mmcls - INFO - Epoch(val) [92][18]	accuracy_top-1: 96.1538
+2023-02-04 14:05:25,595 - mmcls - INFO - Epoch(val) [93][18]	accuracy_top-1: 97.0280
+2023-02-04 14:05:34,584 - mmcls - INFO - Epoch(val) [94][18]	accuracy_top-1: 96.5035
+2023-02-04 14:05:43,586 - mmcls - INFO - Epoch(val) [95][18]	accuracy_top-1: 96.3287
+2023-02-04 14:05:52,452 - mmcls - INFO - Epoch(val) [96][18]	accuracy_top-1: 96.6783
+2023-02-04 14:06:01,383 - mmcls - INFO - Epoch(val) [97][18]	accuracy_top-1: 96.5035
+2023-02-04 14:06:10,501 - mmcls - INFO - Epoch(val) [98][18]	accuracy_top-1: 96.6783
+2023-02-04 14:06:19,504 - mmcls - INFO - Epoch(val) [99][18]	accuracy_top-1: 96.6783
+2023-02-04 14:06:26,988 - mmcls - INFO - Saving checkpoint at 100 epochs
+2023-02-04 14:06:28,787 - mmcls - INFO - Epoch(val) [100][18]	accuracy_top-1: 96.6783
